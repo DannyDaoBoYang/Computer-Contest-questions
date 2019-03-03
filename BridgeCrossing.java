@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package bridgecrossing;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  *
@@ -35,7 +34,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -134,64 +133,86 @@ class Reader {
         din.close();
     }
 }
-
-public class CowHopscotch {
+public class BridgeCrossing {
+static int M;
+static int Q;
+static int maxtotal=0;
+static ArrayList<Integer> answer;
+static int [][] regionmax;
+public static void cross(int person,ArrayList<Integer> change, int time){
+    
+    if(time>=maxtotal){
+        
+    }
+    else if(person==Q+1){
+        if(time<maxtotal){
+            answer.clear();
+            answer.addAll(change);
+            maxtotal=time;
+            
+        }
+    }
+    else{
+        for(int i=person;i<person+M&&i<=Q;i++){
+            change.add(i);
+            
+            cross(i+1,change,time+regionmax[person][i]);
+            
+            change.remove(change.size()-1);
+        }
+    }
+}
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
+        Reader input=new Reader();
+        M=input.nextInt();
+        Q=input.nextInt();
+        String name[]=new String[Q+1];
+        int time[]=new int[Q+1];
+        regionmax=new int[Q+1][Q+1];
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
+        answer=new ArrayList<Integer>();
+        answer.add(0);
+        for(int i=1;i<=Q;i++){
+            name[i]=input.readLine();
+            time[i]=input.nextInt();
+            regionmax[i][i]=time[i];
+            maxtotal+=time[i];
+            answer.add(i);
+        }
+        
+        for(int i=1;i<M;i++){
+            for(int j=1;j<=Q-i;j++){
+                regionmax[j][j+i]=Math.max(regionmax[j][j+i-1],time[j+i]);
             }
         }
-        System.out.println(answer[R][C]);
-    }
-
+        /*
+        for(int i=0;i<=Q;i++){
+            for(int j=0;j<=Q;j++){
+                System.out.print(regionmax[i][j]+" \t");
+                
+            }
+            System.out.println();
+        }*/
+        ArrayList<Integer> change=new ArrayList<Integer>();
+        change.add(0);
+        cross(1,change,0);
+        System.out.println("Total Time: "+maxtotal);
+        
+        for(int i=0;i<answer.size()-1;i++){
+            
+            for(int j=answer.get(i)+1;j<=answer.get(i+1);j++){
+                System.out.print(name[j]+" ");
+            }
+            System.out.println();
+        }
+        
+        
+        
+        
+}
+    
 }

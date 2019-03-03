@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package chances.of.winning;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  *
@@ -35,7 +34,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -134,64 +133,84 @@ class Reader {
         din.close();
     }
 }
-
-public class CowHopscotch {
-
+public class ChancesOfWinning {
+    static int T;
+public static int winning(int left,int []score, int []againsta, int []againstb){
+    int answer=0;
+    if(left==0){
+        int here=score[T];
+        for(int i=0;i<score.length;i++){
+            if(score[i]>here){
+                return 0;
+            }
+            if(score[i]==here&&i!=T){
+                return 0;
+            }
+        }
+        return 1;
+    }
+    int a=againsta[left-1];
+    int b=againstb[left-1];
+    
+    score[a]+=3;
+    answer+=winning(left-1,score,againsta,againstb);
+    score[a]-=3;
+    
+    score[b]+=3;
+    answer+=winning(left-1,score,againsta,againstb);
+    score[b]-=3;
+            
+    score[a]++;
+    score[b]++;
+    answer+=winning(left-1,score,againsta,againstb);
+    score[a]--;
+    score[b]--;
+    return answer;
+}
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
+        Reader input=new Reader();
+         T=input.nextInt();
+        int G=input.nextInt();
+        int [] againsta=new int[6-G+1];
+        int [] againstb=new int[6-G+1];
+        int [] score=new int[5];
+        boolean [][] played=new boolean[5][5];
+        for(int i=0;i<G;i++){
+            int a=input.nextInt();
+            int b=input.nextInt();
+            int c=input.nextInt();
+            int d=input.nextInt();
+            played[a][b]=true;
+            played[b][a]=true;
+            if(c>d){
+                score[a]+=3;
+            }
+            else if(d>c){
+                score[b]+=3;
+            }
+            else{
+                score[a]++;
+                score[b]++;
+            } 
         }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
+        int now=0;
+        for(int i=1;i<5;i++){
+            for(int j=i+1;j<5;j++){
+                if(!played[i][j]){
+                    againsta[now]=i;
+                    againstb[now]=j;
+                    now++;
+                }
             }
         }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
+        
+         
+         int answer=winning(6-G, score,againsta,againstb);
+         System.out.println(answer);
         }
-        System.out.println(answer[R][C]);
-    }
-
+   
 }

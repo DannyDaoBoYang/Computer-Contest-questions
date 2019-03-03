@@ -3,17 +3,108 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package bst;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.TreeMap;
 
 /**
  *
  * @author dannyyang
  */
+public class BST {
+
+    /**
+     * @param args the command line arguments
+     */
+    static node seg[];
+    static int value[];
+    static int index[];
+    static long answer[];
+    static int count=1;
+    static class node{
+        int from=0;
+        int to=0;
+        int first=0;
+        node(){
+            
+        }
+    }
+    public static void building(int root, int left, int right){
+        if(left==right){
+            seg[root]=new node();
+            seg[root].from=seg[root].to=left;
+            seg[root].first=index[count];
+            count++;
+            return;
+        }
+        seg[root]=new node();
+        int mid=(left+right)/2;
+        building(2*root,left,mid);
+        building(2*root+1,mid+1,right);
+        seg[root].from=left;
+        seg[root].to=right;
+        seg[root].first=Math.min(seg[2*root].first, seg[2*root+1].first);
+    }
+    public static int query(int root, int left, int right){
+        
+        if(left==seg[root].from&&right==seg[root].to){
+            return seg[root].first;
+        }
+        int middle=(seg[root].from+seg[root].to)/2;
+        if(right<=middle){
+            return query(2*root, left, right);
+        }
+        else if(left>middle){
+            return query(2*root+1,left,right);
+        }
+        else{
+            return Math.min(query(2*root,left,middle), query(2*root+1,middle+1,right));
+        }
+    }
+    public static void cal(int from, int to, int depth){
+        if(from>to){
+            return;
+        }
+        if(from==to){
+            answer[index[from]]=depth;
+            return;
+        }
+        
+        int split=query(1,from, to);
+        answer[split]=depth;
+        //System.out.println(split+" "+index[split]);
+        cal(from,value[split]-1,depth+1);
+        cal(value[split]+1,to,depth+1);
+       
+    }
+    public static void main(String[] args) throws IOException {
+        Reader input=new Reader();
+        int N=input.nextInt();
+        seg=new node[4*N+4];
+        value=new int[N+4];
+        index=new int[N+4];
+        answer=new long[N+4];
+        for(int i=1;i<=N;i++){
+            value[i]=input.nextInt();
+            index[value[i]]=i;
+        }
+        building(1,1,N);
+        cal(1,N,0);
+      //  System.out.println();
+       for(int i=1;i<=N;i++){
+        //    System.out.print(answer[i]+" ");
+            answer[i]+=answer[i-1];
+            System.out.println(answer[i]);
+        }
+        
+        
+        
+    }
+    
+}
 class Reader {
 
     final private int BUFFER_SIZE = 1 << 16;
@@ -35,7 +126,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -135,63 +226,3 @@ class Reader {
     }
 }
 
-public class CowHopscotch {
-
-    /**
-     * @param args the command line arguments
-     */
-    static long mod = 1000000007;
-    
-    public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
-        }
-        System.out.println(answer[R][C]);
-    }
-
-}

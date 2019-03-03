@@ -3,17 +3,44 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package chair.stacking;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  *
  * @author dannyyang
  */
+public class ChairStacking {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) throws IOException {
+        Reader input=new Reader();
+        int N=input.nextInt();
+        long x[]=new long[N];
+        long y[]=new long[N];
+        for(int i=0;i<N;i++){
+            x[i]=input.nextInt();
+            y[i]=input.nextInt();
+        }
+        Arrays.sort(x);
+        Arrays.sort(y);
+        long xp=x[N/2];
+        long yp=y[N/2];
+        long total=0;
+        for(int i=0;i<N;i++){
+            total+=Math.abs(xp-x[i])+Math.abs(yp-y[i]);
+        }
+        System.out.println(total);
+    }
+    
+}
+
 class Reader {
 
     final private int BUFFER_SIZE = 1 << 16;
@@ -35,7 +62,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -126,6 +153,7 @@ class Reader {
         }
         return buffer[bufferPointer++];
     }
+    
 
     public void close() throws IOException {
         if (din == null) {
@@ -133,65 +161,4 @@ class Reader {
         }
         din.close();
     }
-}
-
-public class CowHopscotch {
-
-    /**
-     * @param args the command line arguments
-     */
-    static long mod = 1000000007;
-    
-    public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
-        }
-        System.out.println(answer[R][C]);
-    }
-
 }

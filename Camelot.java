@@ -3,17 +3,71 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package camelot;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  *
  * @author dannyyang
  */
+public class Camelot {
+
+    /**
+     * @param args the command line arguments
+     */
+    static int N;
+    static long x[];
+    static long y[];
+    public static long distance(long finx, long finy){
+        long total=0;
+            for(int i=0;i<N;i++){
+               total+=Math.max(Math.abs(x[i]-finx), Math.abs(y[i]-finy));
+            }
+            return total;
+    }
+    public static void main(String[] args) throws IOException {
+        Reader input=new Reader();
+        N=input.nextInt();
+        x=new long[N];
+        long xp[]=new long[N];
+        y=new long[N];
+        long yp[]=new long[N];
+        for(int i=0;i<N;i++){
+            x[i]=input.nextInt();
+            y[i]=input.nextInt();
+            xp[i]=x[i]+y[i];
+            yp[i]=x[i]-y[i];
+        }
+        Arrays.sort(xp);
+        Arrays.sort(yp);
+        long nx=xp[N/2];
+        long ny=yp[N/2];
+        long finx=(nx+ny)/2;
+        long finy=(nx-ny)/2;
+        long answer=Long.MAX_VALUE;
+        answer=Math.min(answer,distance(finx+1,finy+1));
+        answer=Math.min(answer,distance(finx+1,finy));
+        answer=Math.min(answer,distance(finx+1,finy-1));
+        answer=Math.min(answer,distance(finx,finy+1));
+        answer=Math.min(answer,distance(finx,finy));
+        answer=Math.min(answer,distance(finx,finy-1));
+        answer=Math.min(answer,distance(finx-1,finy+1));
+        answer=Math.min(answer,distance(finx-1,finy));
+        answer=Math.min(answer,distance(finx-1,finy-1));
+        
+        System.out.println(answer);    
+            
+        
+        
+    }
+    
+    
+}
 class Reader {
 
     final private int BUFFER_SIZE = 1 << 16;
@@ -35,7 +89,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -133,65 +187,4 @@ class Reader {
         }
         din.close();
     }
-}
-
-public class CowHopscotch {
-
-    /**
-     * @param args the command line arguments
-     */
-    static long mod = 1000000007;
-    
-    public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
-        }
-        System.out.println(answer[R][C]);
-    }
-
 }

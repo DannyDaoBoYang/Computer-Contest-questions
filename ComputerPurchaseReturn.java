@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package computer.purchase.pkgreturn;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  *
@@ -35,7 +34,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -135,63 +134,63 @@ class Reader {
     }
 }
 
-public class CowHopscotch {
+public class ComputerPurchaseReturn {
+    static int N;
+    static int T;
+    
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
+        Reader input=new Reader();
+        T=input.nextInt();
+        N=input.nextInt();
+        int dp1[][]=new int[T+1][3001];
+        int dp2[][]=new int[T+1][3001];
+        for(int i=1;i<=T;i++){
+            for(int j=0;j<=N;j++){
+                dp1[i][j]=-1;
+                dp2[i][j]=-1;
             }
         }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
+        for(int i=1;i<=N;i++){
+            int c=input.nextInt();
+            int v=input.nextInt();
+            int t=input.nextInt();
+            dp1[t][c]=Math.max(dp1[t][c], v);
+        }
+        
+        int B=input.nextInt();
+        for(int j=1;j<=B;j++){
+            dp1[1][j]=Math.max(dp1[1][j], dp1[1][j-1]);
+            dp2[1][j]=dp1[1][j];
+        }
+        for(int i=2;i<=T;i++){
+            for(int j=1;j<=B;j++)
+            dp1[i][j]=Math.max(dp1[i][j], dp1[i][j-1]);
+        }
+        System.out.println();
+        for(int i=2;i<=T;i++){
+            for(int j=2;j<=B;j++){
+                for(int k=1;k<=j-1;k++){
+                    if(dp1[i][k]!=-1&&dp2[i-1][j-k]!=-1){
+                        dp2[i][j]=Math.max(dp2[i][j], dp1[i][k]+dp2[i-1][j-k]);
                     }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
+                    
                 }
-
+                dp2[i][j]=Math.max(dp2[i][j], dp2[i][j-1]);
             }
         }
-        System.out.println(answer[R][C]);
-    }
+       /* for(int i=0;i<=T;i++){
+            for(int j=0;j<=B;j++){
+                System.out.print(dp2[i][j]+"\t");
+        }
+            System.out.println();
+        }*/
+        System.out.println(dp2[T][B]);
+    
 
+}
 }

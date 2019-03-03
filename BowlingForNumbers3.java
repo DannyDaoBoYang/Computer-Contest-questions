@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package bowlingfornumbers3;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  *
@@ -35,7 +35,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -135,63 +135,95 @@ class Reader {
     }
 }
 
-public class CowHopscotch {
+public class BowlingForNumbers3 {
 
+    static int[] dp = new int[0];
+    static int[][] dp2 = new int[0][0];
+
+
+    public static void clean(int n, int k) {
+        dp = new int[0];
+        dp = new int[n + 1];
+        dp2 = new int[0][k + 1];
+        dp2 = new int[k + 1][n + 1];
+
+    }
+
+    public static int sum(int start, int end, int arr[]) {
+        int answer = 0;
+        for (int i = start; i <= end; i++) {
+            answer += arr[i];
+        }
+        return answer;
+    }
+
+    public static void fun(int arr[], int width) {
+        for (int i = 1; i < arr.length - width + 1; i++) {
+            dp[i] = sum(i, i + width - 1, arr);
+        }
+        for (int i = 1; i < arr.length - width + 1; i++) {
+            dp2[1][i] = sum(i, i + width - 1, arr);
+        }
+    }
+public static void helpmekillthisshit(int n,int k,int w){
+    for (int i = 2; i <= k; i++) {//colume
+                 int maxing=0;
+                    for(int u=n-k*w;u<n-(k+1)*w;u++){
+                        maxing=Math.max(dp2[i-1][u], maxing);
+                    }
+                for(int j=n-i*w+1;j>=1;j--){
+                    maxing=Math.max(dp2[i-1][j+w], maxing);
+                    dp2[i][j]=dp[j]+maxing;
+                }
+            }
+}
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
         Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
+        int nw = 0;
 
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
+        for (int i = 0; i < nw; i++) {
 
-            }
         }
-        System.out.println(answer[R][C]);
+        int t = input.nextInt();
+        int[] answer = new int[t];
+        for (int i = 0; i < t; i++) {
+            int n = input.nextInt();
+            int k = input.nextInt();
+            int w = input.nextInt();
+            int[] bowls = new int[n + 1];
+            for (int j = 1; j <= n; j++) {
+                bowls[j] = input.nextInt();
+            }
+            clean(n, k);
+            fun(bowls, w);
+            helpmekillthisshit(n,k,w);
+            Arrays.sort(dp2[dp2.length-1]);
+            answer[i]=dp2[dp2.length-1][n];
+
+        }
+        System.out.println("dp1");
+        for (int i = 0; i < dp.length; i++) {
+            System.out.print(i + "\t");
+        }
+        System.out.println();
+        for (int i = 0; i < dp.length; i++) {
+            System.out.print(dp[i] + "\t");
+        }
+        System.out.println();
+        System.out.println("dp2");
+        for (int i = 0; i < dp2.length; i++) {
+            for (int j = 0; j < dp2[i].length; j++) {
+                System.out.print(dp2[i][j] + "\t");
+            }
+
+            System.out.println();
+        }
+        for (int i = 0; i < t; i++) {
+            System.out.println(answer[i]);
+        }
     }
 
 }

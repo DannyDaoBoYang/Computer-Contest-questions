@@ -3,17 +3,92 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Scanner;
+import java.util.Stack;
 
 /**
  *
  * @author dannyyang
  */
+/**
+ *
+ * @author dannyyang
+ */
+public class Main {
+
+    static class Node {
+        int l = 0, r = 0;
+        long val = 0;
+        long lazy = 0;
+        Node(){
+            
+        }
+    }
+static Node seg[];
+    static long tor[];
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) throws IOException {
+        Reader input = new Reader();
+        int N = input.nextInt();
+        int K = input.nextInt();
+        int day = (int) Math.ceil((double) N / (double) K);
+        
+      //  System.out.println(day);
+
+        long dp[][] = new long[N + 1][day + 1];
+        tor = new long[N + 1];
+        for (int i = 1; i <= N; i++) {
+            tor[i] = input.nextInt();
+        }
+        
+
+        dp[1][1] = tor[1];
+        //  System.out.println(dp[1][1]);
+        
+        
+        for (int i = 2; i <= N; i++) {
+            int passed = (int) Math.ceil((double) i / (double) K);
+            long max=tor[i];
+            for (int j = i-1; j >= i - K ; j--) {
+                    if (dp[j][passed - 1] != 0) {
+                        dp[i][passed] = Math.max(dp[j][passed - 1] + max, dp[i][passed]);
+                    }
+                    if(passed+1<=day)
+                    if (dp[j][passed+1] != 0) {
+                        dp[i][passed+1] = Math.max(dp[j][passed] + max, dp[i][passed+1]);
+                    }
+                max = Math.max(max, tor[j]);
+                if (j == 1) {
+                    break;
+                }
+            }
+            if (i <= K) {
+                dp[i][1] = Math.max(max, dp[i][1]);
+            }
+        }
+        /* System.out.println();
+         for(int i=0;i<=N;i++){
+         for(int j=0;j<=day;j++){
+         System.out.print(dp[i][j]+" ");
+         }
+         System.out.println();
+         }*/
+        System.out.println(dp[N][day]);
+
+    }
+
+}
+
 class Reader {
 
     final private int BUFFER_SIZE = 1 << 16;
@@ -35,7 +110,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -133,65 +208,4 @@ class Reader {
         }
         din.close();
     }
-}
-
-public class CowHopscotch {
-
-    /**
-     * @param args the command line arguments
-     */
-    static long mod = 1000000007;
-    
-    public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
-        }
-        System.out.println(answer[R][C]);
-    }
-
 }

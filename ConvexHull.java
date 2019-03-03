@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package convex.hull;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.PriorityQueue;
 
 /**
  *
@@ -35,7 +36,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -134,64 +135,99 @@ class Reader {
         din.close();
     }
 }
-
-public class CowHopscotch {
+public class ConvexHull {
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
-    public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
+    static class road implements Comparable<road> {
+
+        int position=0;
+        int wear = 0;
+        int time = 0;
+
+        road(int position, int time, int wear) {
+            this.wear = wear;
+            this.position = position;
+            this.time = time;
         }
 
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
+        @Override
+        public int compareTo(road n) {
+            if (time > n.time) {
+                return 1;
+            } else if (time == n.time) {
+                if (wear < n.wear) {
+                    return 1;
                 }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
+                return -1;
+            } else {
+                return -1;
             }
         }
-        System.out.println(answer[R][C]);
     }
-
+static class ro{
+    int to;
+    int wear;
+    int time;
+    ro(int to, int wear, int time){
+        this.to=to;
+        this.wear=wear;
+        this.time=time;
+    }
+}
+    static ArrayList <ro> map[];
+    public static void main(String[] args) throws IOException {
+        Reader input=new Reader();
+        int K=input.nextInt();
+        int N=input.nextInt();
+        int M=input.nextInt();
+        PriorityQueue<road> PQ = new PriorityQueue();
+        map=new ArrayList[N+1];
+        for(int i=1;i<=N;i++){
+            map[i]=new ArrayList();
+        }
+        for(int i=0;i<M;i++){
+            int from=input.nextInt();
+            int to=input.nextInt();
+            int time=input.nextInt();
+            int wear=input.nextInt();
+            map[from].add(new ro(to,wear,time));
+            map[to].add(new ro(from,wear,time));
+        }
+        int A=input.nextInt();
+        int B=input.nextInt();
+        int answer=-1;
+        PQ.add(new road(A,0,K));
+        boolean went []=new boolean[N+1];
+        int LW[]=new int[N+1]; //Amoror remain
+        while(!PQ.isEmpty()){
+            
+            road temp=PQ.poll();
+            if(temp.wear<=0){
+                continue;
+            }
+            if(temp.position==B){
+                answer=temp.time;
+                break;
+            }
+            if(went[temp.position]){
+                if(LW[temp.position]>=temp.wear){
+                    continue;
+                }
+                LW[temp.position]=temp.wear;
+            }
+            else{
+                went[temp.position]=true;
+                LW[temp.position]=temp.wear;
+            }
+            for(int i=0;i<map[temp.position].size();i++){
+                ro des=map[temp.position].get(i);
+                PQ.add(new road(des.to,temp.time+des.time,temp.wear-des.wear));
+            }
+        }
+        System.out.println(answer);
+        
+    }
+    
 }

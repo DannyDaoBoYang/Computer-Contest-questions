@@ -3,12 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package carnival.phantasm;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -134,64 +138,106 @@ class Reader {
         din.close();
     }
 }
-
-public class CowHopscotch {
+public class CarnivalPhantasm {
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
+        Reader input=new Reader();
+        int N=input.nextInt();
+        int S=input.nextInt();
+        ArrayList<Integer> css[]=new ArrayList[N+1];
+        for(int i=0;i<N+1;i++){
+            css[i]=new ArrayList();
         }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
+        TreeSet <shop>[] candy=new TreeSet[102];
+        for(int i=0;i<102;i++){
+            candy[i]=new TreeSet();
         }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
+        int dis[]=new int[N+1];
+        for(int i=1;i<=N;i++){
+            dis[i]=input.nextInt();
+        }
+        for(int i=0;i<S;i++){
+            int where=input.nextInt();
+            int sell=input.nextInt();
+            candy[sell].add(new shop(dis[where],where));
+            css[where].add(sell);
+        }
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
+        int Q=input.nextInt();
+        for(int i=0;i<Q;i++){
+            String query[]=input.readLine().split(" ");
+            if(query[0].equals("A")){
+                int where=Integer.parseInt(query[1]);
+                int sell=Integer.parseInt(query[2]);
+                candy[sell].add(new shop(dis[where],where));
+                css[where].add(sell);
+            }
+            if(query[0].equals("S")){
+                int where=Integer.parseInt(query[1]);
+                int sell=Integer.parseInt(query[2]);
+                int dadi=css[where].indexOf(sell);
+                if(dadi!=-1)
+                css[where].remove(dadi);
+            }
+            if(query[0].equals("E")){
+                int where=Integer.parseInt(query[1]);
+                int k=Integer.parseInt(query[2]);
+                css[where].clear();
+                dis[where]=k;
+            }
+            if(query[0].equals("Q")){
+                int sell=Integer.parseInt(query[1]);
+                boolean find=false;
+                while(!candy[sell].isEmpty()){
+                    if(css[candy[sell].first().shop].contains(sell)){
+                        if(candy[sell].first().dis==dis[candy[sell].first().shop]){
+                        System.out.println(candy[sell].first().shop);
+                        find=true;
                         break;
+                        }
+                        else{
+                        candy[sell].pollFirst();
+                        }
+                    }
+                    else{
+                        
+                        candy[sell].pollFirst();
                     }
                 }
-
+                if(!find){
+                    System.out.println(-1);
+                }
+                
             }
         }
-        System.out.println(answer[R][C]);
+        
     }
+    
+    public static class shop implements Comparable<shop> {
 
+        public int dis;
+        public int shop;
+        
+
+
+        public shop(int dis, int shop) {
+
+            this.dis = dis;
+            this.shop = shop;
+            
+            
+        }
+
+        @Override
+        public int compareTo(shop n) {
+            if (dis > n.dis) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
 }

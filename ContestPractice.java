@@ -3,12 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package contest.practice;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  *
@@ -35,7 +33,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -134,64 +132,58 @@ class Reader {
         din.close();
     }
 }
-
-public class CowHopscotch {
+public class ContestPractice {
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
+    
+    
     
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
+        Reader input=new Reader();
+        int P=input.nextInt();
+        int Q=input.nextInt();
+        int N=input.nextInt();
+        int totalsize=(int) Math.pow(Q, P)+1;
+        int po[]=new int[P];
+        for(int i=0;i<P;i++){
+            po[i]=(int) Math.pow(Q, i);
         }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
+        int scores[]=new int[totalsize];
+        int j=P-1;
+        for(int i=0;i<N;i++){
+            int index=0;
+            for(;j>=0;j--){
+                index+=input.nextInt()*po[j];
             }
+            j=P-1;
+            scores[index]++;
         }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
+        int d=1;
+        int limit=1;
+        for(int i=0;i<P;i++){
+            d=limit;
+            limit*=Q;
+            for(int k=totalsize-d;k>=0;k--){
+                if(k+d<totalsize&&(k+d)/limit==k/limit){
+                    scores[k]+=scores[k+d];
+                }
+            }
+            
+        }
+        int X=input.nextInt();
+        for(int i=0;i<X;i++){
+            int index=0;
+            for(;j>=0;j--){
+                index+=input.nextInt()*po[j];
+            }
+            j=P-1;
+            System.out.println(scores[index]);
+        }
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
-        }
-        System.out.println(answer[R][C]);
+        
+        
     }
-
+    
 }

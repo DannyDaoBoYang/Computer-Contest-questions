@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package checkerboard.summation.hard;
+
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.InputStreamReader;
 
 /**
  *
@@ -35,7 +36,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -134,64 +135,91 @@ class Reader {
         din.close();
     }
 }
+public class CheckerboardSummationHard {
 
-public class CowHopscotch {
+    static int bitodd[][];
+    static int biteven[][];
+    static int value[][];
+    static int M;
+    static int N;
+
+    static void updateodd(int idx, int idy, int val) {
+        for (int i = idx; i <= M; i += i & -i) {
+            for (int j = idy; j <= N; j += j & -j) {
+                bitodd[i][j] += val;
+            }
+        }
+    }
+
+    static void updateeven(int idx, int idy, int val) {
+        for (int i = idx; i <= M; i += i & -i) {
+            for (int j = idy; j <= N; j += j & -j) {
+                biteven[i][j] += val;
+            }
+        }
+    }
+
+    public static long Queryodd(int r, int c) {
+        long sum = 0;
+        for (int i = r; i > 0; i -= i & -i) {
+            for (int j = c; j > 0; j -= j & -j) {
+                sum += bitodd[i][j];
+            }
+        }
+        return sum;
+    }
+
+    public static long Queryeven(int r, int c) {
+        long sum = 0;
+        for (int i = r; i > 0; i -= i & -i) {
+            for (int j = c; j > 0; j -= j & -j) {
+                sum += biteven[i][j];
+            }
+        }
+        return sum;
+    }
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
+        Reader input=new Reader();
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
+        M = input.nextInt();
+        N = input.nextInt();
+        bitodd = new int[M+2][N+2];
+        biteven = new int[M+2][N+2];
+        value = new int[M+2][N+2];
+        int word = input.nextInt();
+        while (word!=0) {
+            if (word==1) {
+                int a = input.nextInt();
+                int b = input.nextInt();
+                int c = input.nextInt();
+                if ((a % 2 == 0 && b % 2 == 0) || (a % 2 != 0 && b % 2 != 0)) {
+                    updateeven(a, b, c - value[a][b]);
+                    value[a][b] = c;
+                } else {
+                    updateodd(a, b, c - value[a][b]);
+                    value[a][b] = c;
                 }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
+            } else {
+                int a = input.nextInt();
+                int b = input.nextInt();
+                int c = input.nextInt();
+                int d = input.nextInt();
+                if ((a % 2 == 0 && b % 2 == 0) || (a % 2 != 0 && b % 2 != 0)) {
+                  long total = Queryeven(c, d) - Queryeven(a - 1, d) - Queryeven(c, b - 1) + Queryeven(a - 1, b - 1);
+                  long total2 = Queryodd(c, d) - Queryodd(a - 1, d) - Queryodd(c, b - 1) + Queryodd(a - 1, b - 1);
+                  System.out.println(total - total2);
+                } else {
+                  long total = Queryeven(c, d) - Queryeven(a - 1, d) - Queryeven(c, b - 1) + Queryeven(a - 1, b - 1);
+                  long total2 = Queryodd(c, d) - Queryodd(a - 1, d) - Queryodd(c, b - 1) + Queryodd(a - 1, b - 1);
+                  System.out.println(total2 - total);
                 }
-
             }
+            word = input.nextInt();
         }
-        System.out.println(answer[R][C]);
     }
 
 }

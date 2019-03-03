@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package chemistry.homework;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  *
@@ -35,7 +34,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -134,64 +133,74 @@ class Reader {
         din.close();
     }
 }
-
-public class CowHopscotch {
+public class ChemistryHomework {
 
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
+        Reader input=new Reader();
+        int N=input.nextInt();
+        int B=input.nextInt();
+        int [] atoms=new int[N+1];
         
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
+        boolean ways[][]=new boolean[1001][1001];
+        int count=0;
+        for(int i=0;i<B;i++){
+            int a=input.nextInt();
+            int b=input.nextInt();
+            
+            atoms[a]++;
+            atoms[b]++;
+            if(!ways[a][b]){
+            ways[a][b]=true;
+            ways[b][a]=true;
+            count++;
+            }
+            
+        }
+        int C=0;
+        int H=0;
+        boolean im=false;
+        for(int i=1;i<N+1;i++){
+            if(atoms[i]==1){
+                H++;
+            }
+            else if(atoms[i]==4){
+                C++;
+            }
+            else{
+                im=true;
+                break;
             }
         }
-        System.out.println(answer[R][C]);
+        int Hbond=H;
+        
+        int CCBond=B-count;
+        
+        int Cbond=B-CCBond*2-Hbond;
+        
+        if(!im){
+            System.out.println(Hbond*413+Cbond*346+CCBond*615);
+            /*System.out.println(Hbond);
+            System.out.println(Cbond);
+            System.out.println(CCBond);*/
+        if(C!=1){
+            System.out.print("C"+C);
+        }
+        else{     
+            System.out.print("C");
+        }
+        if(H!=1){
+            System.out.println("H"+H);
+        }
+        else{
+            System.out.println("H");
+        }
+        }
+        else{
+            System.out.println("Impossible");
+        }
     }
-
+    
 }

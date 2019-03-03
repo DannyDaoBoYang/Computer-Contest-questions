@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cow.hopscotch;
+package cake.balancing;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  *
@@ -35,7 +35,7 @@ class Reader {
     }
 
     public String readLine() throws IOException {
-        byte[] buf = new byte[31]; // line length
+        byte[] buf = new byte[64]; // line length
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
@@ -135,63 +135,105 @@ class Reader {
     }
 }
 
-public class CowHopscotch {
-
+public class CakeBalancing {
+    static int Li[];
+    static int Ri[];
+    static int answer=Integer.MAX_VALUE;
+    static int W;
+public static void Lfirst(int LsR,int indexl, int indexR, int indexlb,int indexRb,int steps, boolean Righturn){
+    
+    if(Righturn){
+        
+        int count=0;
+        while(LsR-Ri[indexR]>=-W){
+            LsR-=Ri[indexR];
+            indexR--;
+            count++;
+            if(indexR==indexRb-1){
+                
+                 answer=Math.min(steps+1, answer);
+                
+                break;
+            }
+        }
+        if(indexR!=indexRb-1)
+        while(LsR-Ri[indexRb]>=-W){
+            LsR-=Ri[indexRb];
+            indexRb++;
+            count++;
+            if(indexR==indexRb-1){
+                
+                 answer=Math.min(steps+1, answer);
+                
+                
+                break;
+            }
+        }
+      //  System.out.println(count);
+        if(indexR!=indexRb-1){
+            Lfirst(LsR,indexl,indexR,indexlb,indexRb,steps+1,!Righturn);
+        }
+        
+        
+        
+    }
+    else{
+        int count=0;
+        while(LsR+Li[indexl]<=W){
+            LsR+=Li[indexl];
+            indexl--;
+            count++;
+            if(indexl==indexlb-1){
+                
+                answer=Math.min(steps+1, answer);
+                
+                break;
+            }
+        }
+        if(indexl!=indexlb-1)
+        while(LsR+Li[indexlb]<=W){
+            LsR+=Li[indexlb];
+            indexlb++;
+            count++;
+            if(indexl==indexlb-1){
+                
+                answer=Math.min(steps+1, answer);
+                
+                break;
+            }
+        }
+     //   System.out.println(count);
+        if(indexl!=indexlb-1){
+            Lfirst(LsR,indexl,indexR,indexlb,indexRb,steps+1,!Righturn);
+        }
+        
+    }
+     
+}
     /**
      * @param args the command line arguments
      */
-    static long mod = 1000000007;
-    
     public static void main(String[] args) throws IOException {
-        Reader input = new Reader();
-        int R = input.nextInt();
-        int C = input.nextInt();
-        int K = input.nextInt();
-        String a="";
-        Collections.sort(null);
-        int map[][] = new int[R + 2][C + 2];
-        ArrayList<Integer> x[] = new ArrayList[K+1];
-        ArrayList<Integer> y[] = new ArrayList[K+1];
-        for (int i = 0; i <= K; i++) {
-            x[i] = new ArrayList();
-            y[i] = new ArrayList();
-        }
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                map[i][j] = input.nextInt();
-                x[map[i][j]].add(i);
-                y[map[i][j]].add(j);
-            }
-        }
-
-        int answer[][] = new int[R + 2][C + 2];
-        int sig[][] = new int[R + 2][C + 2];
-        long sum[][] = new long[R + 2][C + 2];
-        
-        sig[1][1] = -1;
-        for (int i = 1; i <= R; i++) {
-            for (int j = 1; j <= C; j++) {
-                answer[i][j] = (int) ((sum[i - 1][j - 1] - sig[i][j]) % mod);
-                if (answer[i][j] < 0) {
-                    answer[i][j] += mod;
-                }
-                sum[i][j] = (sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1]) % mod;
-                sum[i][j] = (sum[i][j] + answer[i][j])%mod;
-                int temp = map[i][j];
-                //x[temp].remove(0);
-               // y[temp].remove(0);
-                for (int w = x[temp].size()-1; w >0; w--) {
-                    if (x[temp].get(w) > i && y[temp].get(w) > j) {
-                        sig[x[temp].get(w)][y[temp].get(w)] = (int) ((sig[x[temp].get(w)][y[temp].get(w)] + answer[i][j]) % mod);
-                    }
-                    else if(x[temp].get(w)<=i){
-                        break;
-                    }
-                }
-
-            }
-        }
-        System.out.println(answer[R][C]);
+       Reader input=new Reader();
+       int L=input.nextInt();
+       int R=input.nextInt();
+       W=input.nextInt();
+       Li=new int[L+1];
+       Ri=new int[R+1];
+       
+       for(int i=1;i<=L;i++){
+           Li[i]=input.nextInt();
+       }
+       for(int i=1;i<=R;i++){
+           Ri[i]=input.nextInt();
+       }
+       Arrays.sort(Li);
+       Arrays.sort(Ri);
+       Lfirst(0,L,R,1,1,1,false);
+       Lfirst(0,L,R,1,1,1,true);
+       System.out.println(answer);
+       
+       
     }
-
+    
 }
